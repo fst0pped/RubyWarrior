@@ -1,14 +1,12 @@
 
 class Player
 	
+  def initialize
+  	@health = 20
+  	@wall_touched = "No"
+  end
+  
   def play_turn(warrior)
-    if @health == nil
-      @health = warrior.health
-    end
-    #declaring the "@wall_touched" variable without overwriting any existing "Yes" value
-    if @wall_touched != "Yes"
-    	@wall_touched = "No"
-    end
    actions(warrior)
   	record_health(warrior)
   end
@@ -24,6 +22,8 @@ class Player
   	 	#if there's a captive, rescue them
   	 	elsif warrior.feel(:backward).captive?
   	 		warrior.rescue! :backward
+  	 	elsif warrior.feel(:backward).enemy?
+  	 		warrior.attack! :backward
   	 	#if the warrior touches the back wall, set the wall_touched variable to yes
   	 	else warrior.feel(:backward).wall?
   	 		@wall_touched = "Yes"
@@ -39,8 +39,10 @@ class Player
       		warrior.walk!
       	end
         #If low on health and not taking damage, rest
-        elsif taking_damage?(warrior) == FALSE and warrior.health < 20
+        elsif !taking_damage?(warrior) and warrior.health < 20
         	warrior.rest!
+        elsif should_warrior_shoot?(warrior)
+      	warrior.shoot!
         else
         	warrior.walk!
         end
@@ -56,7 +58,18 @@ class Player
   end
   
   def taking_damage?(warrior)
-    @taking_damage = warrior.health < @health
+    warrior.health < @health
+  end
+  
+  def look_around(warrior)
+  	@line_of_sight = warrior.look
+  end
+  
+  def should_warrior_shoot? (warrior)
+  	line_of_sight = warrior.look
+  	distance_to_enemy = line_of_sight.index { |space| space.enemy? == true} || 4
+  	distance_to_captive = line_of_sight.index { |space| space.captive? == true } || 4
+  	distance_to_enemy < distance_to_captive
   end
   
   def record_health(warrior)
