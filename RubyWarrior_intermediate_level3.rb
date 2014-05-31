@@ -1,11 +1,12 @@
 class Player
   
-  	def initialize
+	def initialize
   		@health = 20
-  	end
+      		@directions = [:forward, :backward, :left, :right]
+	end
   
 	def play_turn(warrior)
-		stair_direction(warrior)
+    		stair_direction(warrior)
 		actions(warrior)
 		record_health(warrior)
 	end
@@ -13,6 +14,8 @@ class Player
 	def actions(warrior)
 		if rest?(warrior)
 			warrior.rest!
+		elsif surrounded?(warrior)
+			warrior.bind! @stairs
 		elsif warrior.feel(@stairs).enemy?
 			warrior.attack! @stairs
 		else
@@ -20,10 +23,10 @@ class Player
 		end
 	end
 	
-	def stair_direction(warrior)
-		@stairs = warrior.direction_of_stairs
+  def stair_direction(warrior)
+  	@stairs = warrior.direction_of_stairs
 	end
-	
+  
 	def safe?(warrior)
 		@health <= warrior.health
 	end
@@ -31,6 +34,12 @@ class Player
 	def rest?(warrior)
 		safe?(warrior) && @health < 15
 	end
+	
+	def surrounded?(warrior)
+		@directions.each { |direction| warrior.feel(direction).enemy?; @enemies =+1 }
+#		@enemies =+ 1
+		@enemies > 1			
+	end	
 	
 	def record_health(warrior)
 		@health = warrior.health
