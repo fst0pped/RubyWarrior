@@ -2,6 +2,7 @@ class Player
   
   	def initialize
   		@health = 20
+		@directions = [:forward, :backward, :left, :right]
   	end
   
 	def play_turn(warrior)
@@ -13,6 +14,8 @@ class Player
 	def actions(warrior)
 		if rest?(warrior)
 			warrior.rest!
+		elsif surrounded?(warrior)
+			contain_enemies(warrior) #warrior.bind!
 		elsif warrior.feel(@stairs).enemy?
 			warrior.attack! @stairs
 		else
@@ -30,6 +33,21 @@ class Player
 	
 	def rest?(warrior)
 		safe?(warrior) && @health < 15
+	end
+	
+	def surrounded?(warrior)
+		@enemies = 0
+		@directions.each { |direction| warrior.feel(direction).enemy?; @enemies += 1 }
+		@enemies > 1			
+	end
+	
+	def contain_enemies(warrior)
+		@directions.each do |direction|
+			if warrior.feel(direction).enemy?
+				@enemy_direction = direction
+			end
+		end
+		warrior.bind!(@enemy_direction)
 	end
 	
 	def record_health(warrior)
