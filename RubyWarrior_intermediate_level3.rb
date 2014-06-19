@@ -35,13 +35,14 @@ class Player
 		safe?(warrior) && @health < 15
 	end
 	
-	def local_enemies(warrior)
-		@directions.each do |direction|
-			if warrior.feel(direction).enemy?
-				@enemy_direction << direction
-			end
-		end
-	end
+#	def local_enemies(warrior)
+#		@enemy_direction = []
+#		@directions.each do |direction|
+#			if warrior.feel(direction).enemy?
+#				@enemy_direction << direction
+#			end
+#		end
+#	end
 	
 	def surrounded?(warrior)
 		@enemies = 0
